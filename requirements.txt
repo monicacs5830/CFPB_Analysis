@@ -11,4 +11,4 @@ dash-bootstrap-components
 dash-table
 scipy
 scikit-learn == 1.1.1
-gunicorn == 21.2.0
+gunicorn
