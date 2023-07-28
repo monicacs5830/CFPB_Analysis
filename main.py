@@ -520,6 +520,7 @@ Narrative_test_set = pd.read_csv('https://raw.githubusercontent.com/AliHaghighat
 # + colab={"base_uri": "https://localhost:8080/", "height": 671} id="PXhshYrkeojn" outputId="4aa96846-264a-4f84-ea5e-7ca7004e3184"
 # Initializing Dashboard
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
+server = app.server
 # Button style with padding
 button_style = {'margin': '20px', 'margin-left': '20px', 'margin-right': '20px'}
 # Heading stype with padding
