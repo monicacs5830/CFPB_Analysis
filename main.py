@@ -323,7 +323,7 @@ fig4a.update_layout(title='Trend in complaints received over time',
                    xaxis_title='Date Received',
                    yaxis_title='Number of Complaints')
 
-fig4a.show()
+#fig4a.show()
 
 
 
