@@ -42,6 +42,7 @@ from dash import dash_table
 from dash.dependencies import Input, Output, State
 import random
 import plotly.express as px
+import db_dtypes
 
 # + id="PDh6K4h2wLeL"
 # Authenticating with the Google Cloud account and setting up the BigQuery client:
