@@ -9,6 +9,5 @@ dash-core-components
 dash-html-components
 dash-bootstrap-components
 dash-table
-pickle
 scipy
 scikit-learn
