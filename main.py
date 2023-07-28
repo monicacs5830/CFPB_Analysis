@@ -69,7 +69,8 @@ client = bigquery.Client()
 # Accessing the data:
 dataset_ref = client.dataset("cfpb_complaints", project="bigquery-public-data")
 cfpb_complaints_table = dataset_ref.table('complaint_database')
-#df_complaints = client.get_table(cfpb_complaints_table)
+# df_complaints = client.get_table(cfpb_complaints_table)
+
 # Initializing Dashboard
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
 server = app.server
@@ -1234,9 +1235,10 @@ app.layout = html.Div(
 )
 
 
-
-if __name__ == "__main__":
-    app.run(debug=True,use_reloader=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+if _name_ == '_main_':
+    app.run_server(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True,use_reloader=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
  
 #Launch http://127.0.0.1:8050 on your browser
