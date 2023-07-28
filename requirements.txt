@@ -11,4 +11,4 @@ dash-bootstrap-components
 dash-table
 scipy
 scikit-learn
-sklearn
+gunicorn
