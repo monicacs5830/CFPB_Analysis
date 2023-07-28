@@ -1,4 +1,3 @@
-gunicorn
 google-cloud-bigquery
 gcsfs
 pandas
