@@ -10,5 +10,4 @@ dash-html-components
 dash-bootstrap-components
 dash-table
 scipy
-scikit-learn
-sklearn
+scikit-learn = 1.1.1
