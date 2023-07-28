@@ -42,11 +42,16 @@ from dash import dash_table
 from dash.dependencies import Input, Output, State
 import random
 import plotly.express as px
-
+# Import plotly colors
+from plotly.express.colors import qualitative
+import pandas as pd
+import pickle
+from scipy.stats import chi2_contingency
 # + id="PDh6K4h2wLeL"
 # Authenticating with the Google Cloud account and setting up the BigQuery client:
 import os
 import subprocess
+
 
 # URL to the raw GitHub file
 url = "https://raw.githubusercontent.com/monicacs5830/CFPB_Complaints_Analysis/main/data608-391503-e77b21b1d01c.json"
@@ -64,8 +69,10 @@ client = bigquery.Client()
 # Accessing the data:
 dataset_ref = client.dataset("cfpb_complaints", project="bigquery-public-data")
 cfpb_complaints_table = dataset_ref.table('complaint_database')
-df_complaints = client.get_table(cfpb_complaints_table)
-
+#df_complaints = client.get_table(cfpb_complaints_table)
+# Initializing Dashboard
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
+server = app.server
 
 # + id="t-bdNzK7vuAy"
 # Using BigQuery to pull data into a Pandas DataFrame for initial exploration
@@ -78,36 +85,36 @@ df_complaints = client.get_table(cfpb_complaints_table)
 # df_complaints = client.query(query).to_dataframe()
 
 
-# + colab={"base_uri": "https://localhost:8080/"} id="EWWbyFygxRB6" outputId="fea91e3c-8729-4cb1-9f53-3e4594bf2058"
-# list of columns to check for nulls
-columns_to_check = [
-    "subissue",
-    "subproduct",
-    "consumer_complaint_narrative",
-    "company_public_response",
-    "state",
-    "zip_code",
-    "tags",
-    "consumer_disputed",
-    "consumer_consent_provided",
-    "company_response_to_consumer"
-]
+# # + colab={"base_uri": "https://localhost:8080/"} id="EWWbyFygxRB6" outputId="fea91e3c-8729-4cb1-9f53-3e4594bf2058"
+# # list of columns to check for nulls
+# columns_to_check = [
+#     "subissue",
+#     "subproduct",
+#     "consumer_complaint_narrative",
+#     "company_public_response",
+#     "state",
+#     "zip_code",
+#     "tags",
+#     "consumer_disputed",
+#     "consumer_consent_provided",
+#     "company_response_to_consumer"
+# ]
 
-# SQL query string
-missing_data_query = ",\n".join(f"COUNTIF({col} IS NULL) AS {col}_missing_count" for col in columns_to_check)
+# # SQL query string
+# missing_data_query = ",\n".join(f"COUNTIF({col} IS NULL) AS {col}_missing_count" for col in columns_to_check)
 
 
-missing_data_query = f"""
-SELECT
-  {missing_data_query}
-FROM `bigquery-public-data.cfpb_complaints.complaint_database`
-"""
+# missing_data_query = f"""
+# SELECT
+#   {missing_data_query}
+# FROM `bigquery-public-data.cfpb_complaints.complaint_database`
+# """
 
-# querying the data
-missing_data = client.query(missing_data_query).to_dataframe()
+# # querying the data
+# missing_data = client.query(missing_data_query).to_dataframe()
 
-# printing the data
-print(missing_data)
+# # printing the data
+# print(missing_data)
 
 
 # + colab={"base_uri": "https://localhost:8080/", "height": 542} id="c8_0HSyLKKOe" outputId="c51c4371-d9b5-4372-ff32-5830ef27856c"
@@ -170,9 +177,6 @@ abbr_mapping = {
 
 # Apply abbreviation mapping to 'product' column
 products_df_pandas['product_abbr'] = products_df_pandas['product'].map(abbr_mapping)
-
-# Import plotly colors
-from plotly.express.colors import qualitative
 
 # Plot the graph
 fig1a = px.bar(
@@ -284,7 +288,6 @@ fig3 = px.bar(method_df_pd, x='submitted_via', y='Count_Response',
 
 # + colab={"base_uri": "https://localhost:8080/"} id="E0skmiUiXvRf" outputId="94d450b2-0c67-4186-f124-91d219e5f32d"
 # checking association using contingency table
-from scipy.stats import chi2_contingency
 
 # Create a cross-tabulation (contingency table)
 contingency_table = pd.crosstab(method_df_pd['submitted_via'], method_df_pd['company_response_to_consumer'])
@@ -506,8 +509,6 @@ fig5b.update_traces(textinfo='percent+label',
 
 # + colab={"base_uri": "https://localhost:8080/"} id="d_J_OMXbd59t" outputId="3b6e646c-51e7-4509-ea6c-79b9814a93b1"
 # Data for Page 6
-import pandas as pd
-import pickle
 
 # Load the pickled model
 with open('Complement_NB_model.pkl', 'rb') as file:
@@ -518,9 +519,7 @@ Narrative_test_set = pd.read_csv('https://raw.githubusercontent.com/AliHaghighat
 
 
 # + colab={"base_uri": "https://localhost:8080/", "height": 671} id="PXhshYrkeojn" outputId="4aa96846-264a-4f84-ea5e-7ca7004e3184"
-# Initializing Dashboard
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
-server = app.server
+
 # Button style with padding
 button_style = {'margin': '20px', 'margin-left': '20px', 'margin-right': '20px'}
 # Heading stype with padding
