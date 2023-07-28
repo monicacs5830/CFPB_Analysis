@@ -43,11 +43,15 @@ from dash.dependencies import Input, Output, State
 import random
 import plotly.express as px
 import db_dtypes
-
+from scipy.stats import chi2_contingency
 # + id="PDh6K4h2wLeL"
 # Authenticating with the Google Cloud account and setting up the BigQuery client:
 import os
 import subprocess
+import pandas as pd
+import pickle
+# Import plotly colors
+from plotly.express.colors import qualitative
 
 # URL to the raw GitHub file
 url = "https://raw.githubusercontent.com/monicacs5830/CFPB_Complaints_Analysis/main/data608-391503-e77b21b1d01c.json"
@@ -65,7 +69,7 @@ client = bigquery.Client()
 # Accessing the data:
 dataset_ref = client.dataset("cfpb_complaints", project="bigquery-public-data")
 cfpb_complaints_table = dataset_ref.table('complaint_database')
-df_complaints = client.get_table(cfpb_complaints_table)
+# df_complaints = client.get_table(cfpb_complaints_table)
 
 
 # + id="t-bdNzK7vuAy"
@@ -79,37 +83,39 @@ df_complaints = client.get_table(cfpb_complaints_table)
 # df_complaints = client.query(query).to_dataframe()
 
 
-# + colab={"base_uri": "https://localhost:8080/"} id="EWWbyFygxRB6" outputId="fea91e3c-8729-4cb1-9f53-3e4594bf2058"
-# list of columns to check for nulls
-columns_to_check = [
-    "subissue",
-    "subproduct",
-    "consumer_complaint_narrative",
-    "company_public_response",
-    "state",
-    "zip_code",
-    "tags",
-    "consumer_disputed",
-    "consumer_consent_provided",
-    "company_response_to_consumer"
-]
+# # + colab={"base_uri": "https://localhost:8080/"} id="EWWbyFygxRB6" outputId="fea91e3c-8729-4cb1-9f53-3e4594bf2058"
+# # list of columns to check for nulls
+# columns_to_check = [
+#     "subissue",
+#     "subproduct",
+#     "consumer_complaint_narrative",
+#     "company_public_response",
+#     "state",
+#     "zip_code",
+#     "tags",
+#     "consumer_disputed",
+#     "consumer_consent_provided",
+#     "company_response_to_consumer"
+# ]
 
-# SQL query string
-missing_data_query = ",\n".join(f"COUNTIF({col} IS NULL) AS {col}_missing_count" for col in columns_to_check)
+# # SQL query string
+# missing_data_query = ",\n".join(f"COUNTIF({col} IS NULL) AS {col}_missing_count" for col in columns_to_check)
 
 
-missing_data_query = f"""
-SELECT
-  {missing_data_query}
-FROM `bigquery-public-data.cfpb_complaints.complaint_database`
-"""
+# missing_data_query = f"""
+# SELECT
+#   {missing_data_query}
+# FROM `bigquery-public-data.cfpb_complaints.complaint_database`
+# """
 
-# querying the data
-missing_data = client.query(missing_data_query).to_dataframe()
+# # querying the data
+# missing_data = client.query(missing_data_query).to_dataframe()
 
-# printing the data
-print(missing_data)
+# # printing the data
+# print(missing_data)
 
+# Initializing dashboard Instance
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
 
 # + colab={"base_uri": "https://localhost:8080/", "height": 542} id="c8_0HSyLKKOe" outputId="c51c4371-d9b5-4372-ff32-5830ef27856c"
 # 1.How are complaints distributed by product and sub-product?
@@ -171,9 +177,6 @@ abbr_mapping = {
 
 # Apply abbreviation mapping to 'product' column
 products_df_pandas['product_abbr'] = products_df_pandas['product'].map(abbr_mapping)
-
-# Import plotly colors
-from plotly.express.colors import qualitative
 
 # Plot the graph
 fig1a = px.bar(
@@ -285,7 +288,6 @@ fig3 = px.bar(method_df_pd, x='submitted_via', y='Count_Response',
 
 # + colab={"base_uri": "https://localhost:8080/"} id="E0skmiUiXvRf" outputId="94d450b2-0c67-4186-f124-91d219e5f32d"
 # checking association using contingency table
-from scipy.stats import chi2_contingency
 
 # Create a cross-tabulation (contingency table)
 contingency_table = pd.crosstab(method_df_pd['submitted_via'], method_df_pd['company_response_to_consumer'])
@@ -294,8 +296,8 @@ contingency_table = pd.crosstab(method_df_pd['submitted_via'], method_df_pd['com
 chi2, p, dof, expected = chi2_contingency(contingency_table)
 
 # Print the results
-#print("chi2 statistic", chi2)
-#print("p-value", p)
+# print("chi2 statistic", chi2)
+# print("p-value", p)
 
 # + colab={"base_uri": "https://localhost:8080/", "height": 542} id="Hn9UiFvZhL8X" outputId="916b4341-96a9-4035-820a-8300ce7f786a"
 # Data preparation and plot creation for page 4
@@ -324,7 +326,7 @@ fig4a.update_layout(title='Trend in complaints received over time',
                    xaxis_title='Date Received',
                    yaxis_title='Number of Complaints')
 
-#fig4a.show()
+# fig4a.show()
 
 
 
@@ -507,8 +509,6 @@ fig5b.update_traces(textinfo='percent+label',
 
 # + colab={"base_uri": "https://localhost:8080/"} id="d_J_OMXbd59t" outputId="3b6e646c-51e7-4509-ea6c-79b9814a93b1"
 # Data for Page 6
-import pandas as pd
-import pickle
 
 # Load the pickled model
 with open('Complement_NB_model.pkl', 'rb') as file:
@@ -718,17 +718,17 @@ page_1 = html.Div([
 
 second_question_key_findings = """
 Key Findings:
-- "Incorrect information on one's report" was the most common issue with 800,000 complaints, indicating credit report inaccuracies.
-- The second most common issue was related to investigations by credit reporting companies, with over 400,000 complaints, highlighting concerns about their effectiveness.
-- "Improper use of the report" had 300,000 complaints, showing credit reports are sometimes used inappropriately.
-- "Attempting to collect debt not owed" received over 100,000 complaints, indicating collection attempts for debts consumers didn't owe.
-- "Written notification about debt" had the fewest complaints, less than 100,000.
-
+"Incorrect information on one's report" was the most common issue with 800,000 complaints, indicating credit report inaccuracies.
+The second most common issue was related to investigations by credit reporting companies, with over 400,000 complaints, highlighting concerns about their effectiveness.
+"Improper use of the report" had 300,000 complaints, showing credit reports are sometimes used inappropriately.
+"Attempting to collect debt not owed" received over 100,000 complaints, indicating collection attempts for debts consumers didn't owe.
+"Written notification about debt" had the fewest complaints, less than 100,000.
+\n
 Sub-issues in "incorrect information on the report":
-- "Information belonging to someone else" had over 500,000 complaints.
-- "Incorrect account information" and "incorrect status" had 99,000 and 98,000 complaints, respectively.
-- "Incorrect personal information" received the least complaints with only 50,000 cases.
-
+"Information belonging to someone else" had over 500,000 complaints.
+"Incorrect account information" and "incorrect status" had 99,000 and 98,000 complaints, respectively.
+"Incorrect personal information" received the least complaints with only 50,000 cases.
+\n
 In summary, the analysis shows the need for addressing credit report inaccuracies and improving practices by credit reporting companies.
 """
 
@@ -1234,9 +1234,9 @@ app.layout = html.Div(
     id='main-div'
 )
 
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+server = app.server
+# if __name__ == "__main__":
+#     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
 #Launch http://127.0.0.1:8050 on your browser
 #calling app.run_server(), start the ngrok server
