@@ -1235,8 +1235,8 @@ app.layout = html.Div(
 
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True,use_reloader=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
  
 #Launch http://127.0.0.1:8050 on your browser
