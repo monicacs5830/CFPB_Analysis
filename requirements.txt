@@ -1,0 +1,14 @@
+google-cloud-bigquery
+gcsfs
+pandas
+seaborn
+matplotlib
+plotly
+dash
+dash-core-components
+dash-html-components
+dash-bootstrap-components
+dash-table
+pickle
+scipy
+scikit-learn
