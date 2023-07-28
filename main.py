@@ -294,8 +294,8 @@ contingency_table = pd.crosstab(method_df_pd['submitted_via'], method_df_pd['com
 chi2, p, dof, expected = chi2_contingency(contingency_table)
 
 # Print the results
-print("chi2 statistic", chi2)
-print("p-value", p)
+#print("chi2 statistic", chi2)
+#print("p-value", p)
 
 # + colab={"base_uri": "https://localhost:8080/", "height": 542} id="Hn9UiFvZhL8X" outputId="916b4341-96a9-4035-820a-8300ce7f786a"
 # Data preparation and plot creation for page 4
