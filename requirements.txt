@@ -12,3 +12,4 @@ dash-table
 pickle
 scipy
 scikit-learn
+sklearn
